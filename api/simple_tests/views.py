@@ -3,8 +3,6 @@ from datetime import datetime
 import pytz
 from django.core.cache import cache
 from django.db.models import Q
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework import viewsets
@@ -20,7 +18,6 @@ from api.simple_tests.serializers import (
 )
 from api.users.models import UserRole
 from asu_app.custom_permissions import ReadOnly
-from asu_app.settings import WEB_GNS_HOST
 
 
 class TestViewSet(viewsets.ModelViewSet):
@@ -54,16 +51,13 @@ class TestViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # if test.is_gns3:
-        #     return HttpResponseRedirect(WEB_GNS_HOST)
-
         test_time_key = 'timer_test_{}_{}'.format(test.id, request.user.id)
         test_date_key = 'date_test_{}_{}'.format(test.id, request.user.id)
         if not cache.get(test_time_key):
             cache.set(test_time_key, test.timer * 60, test.timer * 60 * 2)
             cache.set(test_date_key, datetime.now().timestamp(), test.timer * 60 * 2)  # noqa
         estimated_time = int(cache.get(test_time_key) - (
-                datetime.now().timestamp() - cache.get(test_date_key)))
+            datetime.now().timestamp() - cache.get(test_date_key)))
         data = {'estimated_time': estimated_time}
         data.update(serializer.data)
         return Response(data, status=status.HTTP_200_OK)
@@ -101,13 +95,13 @@ class TestViewSet(viewsets.ModelViewSet):
             if answers_result_weight < 0:
                 answers_result_weight = 0
             result_weight += question.weight * (answers_result_weight / answers_max_weight)  # noqa
+
         if max_weight:
             result_mark = round((result_weight / max_weight) * 10, 2)
-        result = TestsResult.objects.create(
-            student=request.user,
-            test=test,
-            mark=result_mark if max_weight else 0
-        )
+        mark = -1 if test.is_gns3 else (result_mark if max_weight else 0)
+
+        result = TestsResult.objects.create(student=request.user, test=test, mark=mark)
+
         for answer_result in answers_results:
             answer_result.test_result = result
             answer_result.save()
