@@ -53,6 +53,11 @@ class User(AbstractUser):
         blank=True,
         default=UserRole.STUDENT
         )
+    projects = models.JSONField(
+        verbose_name='GNS3 Проекты',
+        blank=False,
+        default=[]
+    )
 
     @property
     def full_name(self):
