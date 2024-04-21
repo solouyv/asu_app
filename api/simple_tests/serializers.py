@@ -32,12 +32,13 @@ class TestDetailSerializer(serializers.ModelSerializer):
 
 class TestResultSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='test.name', read_only=True)
+    outer_url = serializers.CharField(source='test.outer_url', read_only=True)
     student = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
 
     class Meta:
         model = TestsResult
-        fields = ['id', 'mark', 'completion_date', 'test', 'student', 'name', 'student', 'group'] # noqa
+        fields = ['id', 'mark', 'completion_date', 'test', 'student', 'name', 'outer_url', 'student', 'group'] # noqa
 
     @staticmethod
     def get_student(instance):

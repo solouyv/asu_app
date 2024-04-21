@@ -98,7 +98,7 @@ class TestViewSet(viewsets.ModelViewSet):
 
         if max_weight:
             result_mark = round((result_weight / max_weight) * 10, 2)
-        mark = -1 if test.is_gns3 else (result_mark if max_weight else 0)
+        mark = -1 if test.is_outer else (result_mark if max_weight else 0)
 
         result = TestsResult.objects.create(student=request.user, test=test, mark=mark)
 

@@ -41,7 +41,8 @@ class Test(models.Model):
         blank=True,
         null=True
         )
-    is_gns3 = models.BooleanField(verbose_name='Выполнять в GNS?', default=False)
+    is_outer = models.BooleanField(verbose_name='Сторонний ресурс', default=False)
+    outer_url = models.CharField(max_length=500, null=True, blank=True, verbose_name='Url стороннего ресурса')
 
     def __str__(self):
         return 'Тест: "{}"'.format(self.name)

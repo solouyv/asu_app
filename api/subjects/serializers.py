@@ -1,8 +1,15 @@
-import os
+from urllib.parse import urlparse, urlunparse
 
 from rest_framework import serializers
 from api.subjects.models import Lab, Lecture, Folder, File, Subject, Semester
 from api.groups.serializers import SpecialitySerializer
+
+
+def replace_url(url: str) -> str:
+    parsed_url = urlparse(url)
+    new_netloc = f"{parsed_url.hostname}:3081"
+
+    return urlunparse(parsed_url._replace(netloc=new_netloc))
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -36,10 +43,9 @@ class LabSerializer(serializers.ModelSerializer):
             file_url = obj.file.url
             if request:
                 file_url = request.build_absolute_uri(file_url)
-            file_url = file_url.replace(
-                'http://localhost',
-                os.getenv('API_BASE_URL'),
-            )
+
+            file_url = replace_url(file_url)
+
             return file_url
         return None
 
@@ -58,10 +64,9 @@ class LectureSerializer(serializers.ModelSerializer):
             file_url = obj.file.url
             if request:
                 file_url = request.build_absolute_uri(file_url)
-            file_url = file_url.replace(
-                'http://localhost',
-                os.getenv('API_BASE_URL'),
-            )
+
+            file_url = replace_url(file_url)
+
             return file_url
         return None
 
@@ -87,9 +92,8 @@ class FileSerializer(serializers.ModelSerializer):
             file_url = obj.file.url
             if request:
                 file_url = request.build_absolute_uri(file_url)
-            file_url = file_url.replace(
-                'http://localhost',
-                os.getenv('API_BASE_URL'),
-            )
+
+            file_url = replace_url(file_url)
+
             return file_url
         return None
